@@ -30,33 +30,39 @@ export default async function handler(req, res) {
         max_tokens: 800,
         messages: [{
           role: "user",
-          content: `Provide safety info for food ingredient: ${ingredientName}
+          content: `Provide detailed safety information about the food ingredient: ${ingredientName}
 
-Return ONLY JSON:
+Return ONLY a JSON object with this exact structure (no markdown, no explanation):
 {
-  "name": "Name",
-  "category": "Category",
-  "safety_level": "SAFE|CAUTION|DANGER",
-  "description": "Description",
-  "concerns": ["concern"],
-  "benefits": ["benefit"],
+  "name": "Ingredient Name",
+  "category": "Category type",
+  "safety_level": "SAFE or CAUTION or WARNING or DANGER",
+  "description": "Detailed 2-3 sentence description explaining what this ingredient is, how it's made, why it's used in food products, and any important information consumers should know",
+  "concerns": ["concern1", "concern2"],
+  "benefits": ["benefit1", "benefit2"],
   "dosage": {
-    "child_6_12": "Amount",
-    "adult_male": "Amount", 
-    "adult_female": "Amount",
-    "toxic_dose": "Amount"
+    "child_6_12": "X mg/kg or amount per day",
+    "adult_male": "X mg/kg or amount per day",
+    "adult_female": "X mg/kg or amount per day",
+    "toxic_dose": "Amount that causes harm"
   },
-  "sources": [{"title": "Source", "url": "https://url.gov"}]
-}`
+  "sources": [
+    {"title": "Source name", "url": "https://example.com"}
+  ]
+}
+
+If this is a dangerous ingredient, safety_level should be DANGER or WARNING.
+Include 2-3 credible sources (FDA, WHO, medical journals, or .gov/.edu sites).`
         }]
       })
     });
 
     const data = await response.json();
     
-    if (data.choices?.[0]?.message?.content) {
-      const text = data.choices[0].message.content.replace(/```json|```/g, '').trim();
-      return res.status(200).json({ success: true, data: JSON.parse(text) });
+    if (data.choices && data.choices[0] && data.choices[0].message) {
+      const text = data.choices[0].message.content;
+      const cleanText = text.replace(/```json|```/g, '').trim();
+      return res.status(200).json({ success: true, data: JSON.parse(cleanText) });
     }
     
     return res.status(500).json({ error: 'No response from AI' });
