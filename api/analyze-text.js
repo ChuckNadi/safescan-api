@@ -32,39 +32,46 @@ export default async function handler(req, res) {
           role: "user",
           content: `Analyze these food ingredients: ${ingredients}
 
-Return ONLY valid JSON:
+Return ONLY valid JSON (no markdown, no explanation):
 
 {
   "product_name": "Unknown Product",
   "ingredients": [
     {
       "name": "Ingredient Name",
-      "category": "Category",
+      "category": "Preservative|Sweetener|Coloring|Flavoring|Emulsifier|Thickener|Acidulant|Vitamin/Mineral|Fat/Oil|Base|Sodium|Allergen|Ingredient",
       "safety_level": "SAFE|CAUTION|DANGER",
-      "description": "Description",
-      "concerns": ["concern"],
-      "benefits": ["benefit"],
+      "description": "Detailed 2-3 sentence description explaining what this ingredient is, how it's made, why it's used in food products, and any important information consumers should know",
+      "concerns": ["specific health concern 1", "specific health concern 2"],
+      "benefits": ["specific benefit 1", "specific benefit 2"],
       "dosage": {
-        "child_6_12": "Amount",
-        "adult_male": "Amount",
-        "adult_female": "Amount",
-        "toxic_dose": "Amount"
+        "child_6_12": "Safe daily amount for children",
+        "adult_male": "Safe daily amount for adult males",
+        "adult_female": "Safe daily amount for adult females",
+        "toxic_dose": "Amount that may cause harm"
       },
-      "sources": [{"title": "Source", "url": "https://url.gov"}]
+      "sources": [
+        {"title": "FDA or WHO or scientific source", "url": "https://actual-source-url.gov"}
+      ]
     }
   ],
-  "allergens": [],
-  "warnings": []
+  "allergens": ["milk", "soy", "wheat"],
+  "warnings": ["Contains artificial colors", "High sodium content"]
 }
 
-Safety: DANGER for artificial dyes/preservatives, CAUTION for processed ingredients, SAFE for natural.`
+Safety level guidelines:
+- DANGER: Artificial dyes (Red 40, Yellow 5, Blue 1), sodium nitrite/nitrate, BHA, BHT, aspartame, MSG, partially hydrogenated oils, brominated vegetable oil, TBHQ, titanium dioxide
+- CAUTION: High fructose corn syrup, carrageenan, artificial flavors, palm oil, excessive sodium, caramel color, potassium sorbate, sodium benzoate
+- SAFE: Natural ingredients, vitamins, minerals, water, basic whole foods
+
+Include real dosage data and credible sources (FDA, WHO, NIH, .gov, .edu) for each ingredient.`
         }]
       })
     });
 
     const data = await response.json();
     
-    if (data.choices?.[0]?.message?.content) {
+    if (data.choices && data.choices[0] && data.choices[0].message) {
       return res.status(200).json({ success: true, content: data.choices[0].message.content });
     }
     
