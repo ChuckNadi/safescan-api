@@ -27,32 +27,60 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "anthropic/claude-3-haiku",
-        max_tokens: 800,
+        max_tokens: 1000,
         messages: [{
           role: "user",
-          content: `Provide detailed safety information about the food ingredient: ${ingredientName}
+          content: `Provide detailed safety information about: ${ingredientName}
 
-Return ONLY a JSON object with this exact structure (no markdown, no explanation):
+First determine if this is an EDIBLE food ingredient or a non-food/toxic substance.
+
+Return ONLY valid JSON (no markdown):
 {
   "name": "Ingredient Name",
+  "is_edible": true or false,
   "category": "Category type",
-  "safety_level": "SAFE or CAUTION or WARNING or DANGER",
-  "description": "Detailed 2-3 sentence description explaining what this ingredient is, how it's made, why it's used in food products, and any important information consumers should know",
-  "concerns": ["concern1", "concern2"],
-  "benefits": ["benefit1", "benefit2"],
+  "safety_level": "SAFE|CAUTION|DANGER|TOXIC",
+  "description": "Detailed 2-3 sentence description explaining what this is, how it's made/derived, its purpose, and key safety information",
+  "concerns": ["specific concern 1", "specific concern 2"],
+  "benefits": ["specific benefit 1", "specific benefit 2"],
   "dosage": {
-    "child_6_12": "X mg/kg or amount per day",
-    "adult_male": "X mg/kg or amount per day",
-    "adult_female": "X mg/kg or amount per day",
-    "toxic_dose": "Amount that causes harm"
+    "child_6_12": "Specific mg/kg/day or mg/day (e.g., '5 mg/kg/day max' or '100mg daily'). State 'NOT FOR CHILDREN' or 'TOXIC' if applicable",
+    "adult_male": "Specific mg/kg/day or mg/day for 70kg adult male (e.g., '350mg daily max')",
+    "adult_female": "Specific mg/kg/day or mg/day for 60kg adult female (e.g., '300mg daily max')",
+    "toxic_dose": "EXACT amount causing harm with specific symptoms (e.g., '>1000mg: headache, nausea; >5000mg: liver damage, seizures; LD50 in rats: 7000mg/kg'). MUST include numbers and effects."
   },
   "sources": [
-    {"title": "Source name", "url": "https://example.com"}
+    {"title": "Exact page title", "url": "https://real-verified-url.gov/exact-page"}
   ]
 }
 
-If this is a dangerous ingredient, safety_level should be DANGER or WARNING.
-Include 2-3 credible sources (FDA, WHO, medical journals, or .gov/.edu sites).`
+SAFETY LEVELS:
+- TOXIC: Not for human consumption, poisons, industrial chemicals
+- DANGER: Known harmful additives (artificial dyes, nitrites, BHA/BHT, etc.)
+- CAUTION: Processed additives with some concerns (HFCS, artificial flavors, etc.)
+- SAFE: Natural, whole food ingredients, vitamins, minerals
+
+CRITICAL SOURCE RULES:
+1. ONLY provide sources if you have the EXACT, REAL URL that exists
+2. If you cannot verify a URL is real, return "sources": []
+3. NEVER fabricate or guess URLs
+4. Acceptable domains: fda.gov, who.int, nih.gov, ncbi.nlm.nih.gov, efsa.europa.eu, cdc.gov
+5. URL must go to a specific page about this ingredient, not just the homepage
+
+CRITICAL TOXIC DOSE RULES:
+1. MUST provide SPECIFIC numerical values (mg, g, mg/kg body weight)
+2. MUST describe what symptoms/effects occur at each toxic threshold
+3. Include LD50 (lethal dose for 50% of test animals) if available
+4. Include ADI (Acceptable Daily Intake) if established by FDA/WHO/EFSA
+5. NEVER use vague terms like "excessive amounts", "too much", "large quantities"
+6. If no human data exists, provide animal study data with clear labeling
+
+NON-FOOD SUBSTANCES:
+If this is NOT a food ingredient (chemical, poison, cleaning agent, etc.):
+- Set "is_edible": false
+- Set "safety_level": "TOXIC"
+- Still provide toxic dose info for accidental exposure awareness
+- Clearly state this is not meant for consumption`
         }]
       })
     });
