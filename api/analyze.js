@@ -61,7 +61,13 @@ Return ONLY valid JSON (no markdown, no explanation):
     }
   ],
   "allergens": ["milk", "soy", "wheat"],
-  "warnings": ["Warning 1"]
+  "warnings": ["Contains artificial colors", "High sodium content"],
+  "amazon_search": "Exact product name for Amazon search",
+  "healthier_alternative": {
+    "name": "Generic or natural alternative name",
+    "type": "generic|natural|organic",
+    "description": "Why this is a healthier/cheaper option"
+  }
 }
 
 SAFETY LEVELS:
