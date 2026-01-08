@@ -39,7 +39,7 @@ Return ONLY valid JSON (no markdown, no explanation):
 {
   "is_edible": true or false,
   "product_name": "Unknown Product",
-  "product_type": "food|beverage|supplement|cleaning_product|chemical|medicine|cosmetic|unknown",
+  "product_type": "food|beverage|supplement|cleaning_product|chemical|prescription_drug|otc_medicine|cosmetic|unknown",
   "warning_message": "Only if NOT edible: Clear warning like 'THESE ARE NOT FOOD INGREDIENTS - These chemicals are TOXIC if consumed'",
   "ingredients": [
     {
