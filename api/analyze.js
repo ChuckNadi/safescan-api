@@ -13,10 +13,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { ingredients } = req.body;
+    const { image } = req.body;
 
-    if (!ingredients) {
-      return res.status(400).json({ error: 'No ingredients provided' });
+    if (!image) {
+      return res.status(400).json({ error: 'No image provided' });
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
