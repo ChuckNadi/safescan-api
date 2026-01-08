@@ -50,10 +50,10 @@ export default async function handler(req, res) {
       "concerns": ["specific health concern 1", "specific health concern 2"],
       "benefits": ["specific benefit 1", "specific benefit 2"],
       "dosage": {
-        "child_6_12": "Safe daily amount for children",
-        "adult_male": "Safe daily amount for adult males",
-        "adult_female": "Safe daily amount for adult females",
-        "toxic_dose": "Amount that may cause harm"
+        "child_6_12": "Specific mg/kg body weight or mg per day (e.g., '7.5 mg/kg/day' or '50mg daily')",
+        "adult_male": "Specific mg/kg body weight or mg per day for 70kg male (e.g., '500mg daily')",
+        "adult_female": "Specific mg/kg body weight or mg per day for 60kg female (e.g., '400mg daily')",
+        "toxic_dose": "Specific amount that causes harm with symptoms (e.g., '>1000mg causes headaches, nausea; >5000mg causes liver damage')"
       },
       "sources": [
         {"title": "FDA or WHO or scientific source", "url": "https://actual-source-url.gov"}
