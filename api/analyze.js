@@ -125,9 +125,11 @@ If image is not a product label at all, return: {"error": "NOT_A_PRODUCT_LABEL"}
       return res.status(200).json({ success: true, content: data.choices[0].message.content });
     }
     
-    return res.status(500).json({ error: 'No response from AI' });
+    console.log('OpenRouter response:', JSON.stringify(data).substring(0, 500));
+    return res.status(500).json({ error: 'No response from AI', debug: data });
     
   } catch (error) {
+    console.error('Catch error:', error.message);
     return res.status(500).json({ error: 'Analysis failed', details: error.message });
   }
 }
