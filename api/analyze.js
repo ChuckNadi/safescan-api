@@ -37,10 +37,9 @@ export default async function handler(req, res) {
             },
             {
               type: "text",
-              text: `Analyze this image. First determine if this is an EDIBLE FOOD PRODUCT.
+              text: `You are a precise ingredient extraction tool. Your job is to read food labels EXACTLY as written.
 
-
-CRITICAL RULES:
+CRITICAL EXTRACTION RULES:
 1. ONLY list ingredients you can CLEARLY READ in the image
 2. NEVER guess or make up ingredients
 3. NEVER add ingredients that aren't visible
@@ -49,6 +48,10 @@ CRITICAL RULES:
 6. Extract ingredients in the EXACT ORDER they appear on the label
 7. Include ALL ingredients - do not skip any
 8. Include sub-ingredients in parentheses (e.g., "Contains 2% or less of: salt, sugar")
+
+SAFETY CHECK:
+- If this is NOT a food product (cleaning supplies, chemicals, medicine, poison), set "is_edible": false
+- If this IS a food product meant for human consumption, set "is_edible": true
 
 BARCODE EXTRACTION:
 - If you see a barcode number, include it in "barcode" field
@@ -69,16 +72,16 @@ Return ONLY valid JSON (no markdown):
   "ingredients": [
     {
       "name": "EXACT ingredient name as written on label",
-      "category": "Preservative|Sweetener|Coloring|Flavoring|Emulsifier|Thickener|Acidulant|Vitamin/Mineral|Fat/Oil|Base|Sodium|Allergen|Ingredient",
-      "safety_level": "SAFE|CAUTION|DANGER",
-      "description": "What this ingredient is and why it's used",
-      "concerns": ["specific concern if any"],
+      "category": "Preservative|Sweetener|Coloring|Flavoring|Emulsifier|Thickener|Acidulant|Vitamin/Mineral|Fat/Oil|Base|Sodium|Allergen|Ingredient|Chemical|Toxic",
+      "safety_level": "SAFE|CAUTION|DANGER|TOXIC",
+      "description": "What this ingredient is and why it's used (2-3 sentences)",
+      "concerns": ["specific health concern if any"],
       "benefits": ["specific benefit if any"],
       "dosage": {
-        "child_6_12": "Specific safe amount or 'No established limit'",
-        "adult_male": "Specific safe amount or 'No established limit'",
-        "adult_female": "Specific safe amount or 'No established limit'",
-        "toxic_dose": "Specific toxic amount with symptoms (e.g., '>5g causes nausea') or 'No known toxicity at normal consumption levels'"
+        "child_6_12": "Specific mg/kg/day or mg/day (e.g., '7.5 mg/kg/day'). Say 'NOT FOR CHILDREN' if unsafe",
+        "adult_male": "Specific mg/kg/day or mg/day for 70kg male (e.g., '500mg daily max')",
+        "adult_female": "Specific mg/kg/day or mg/day for 60kg female (e.g., '400mg daily max')",
+        "toxic_dose": "SPECIFIC amount with symptoms (e.g., '>2000mg causes nausea; >10g causes liver damage; LD50: 5000mg/kg in rats'). NEVER be vague."
       },
       "sources": []
     }
@@ -94,9 +97,10 @@ Return ONLY valid JSON (no markdown):
   }
 }
 
-SAFETY LEVELS (apply accurately):
-- DANGER: Artificial dyes (Red 40, Yellow 5, Yellow 6, Blue 1, Blue 2), sodium nitrite, sodium nitrate, BHA, BHT, aspartame, acesulfame potassium, MSG (monosodium glutamate), partially hydrogenated oils, TBHQ, titanium dioxide, brominated vegetable oil, potassium bromate
-- CAUTION: High fructose corn syrup, carrageenan, artificial flavors, natural flavors (when unspecified), palm oil, caramel color, sodium benzoate, potassium sorbate, sulfites, polysorbate 80
+SAFETY LEVELS:
+- TOXIC: Non-food items, poisons, chemicals not meant for consumption
+- DANGER: Artificial dyes (Red 40, Yellow 5, Yellow 6, Blue 1, Blue 2), sodium nitrite, sodium nitrate, BHA, BHT, aspartame, acesulfame potassium, MSG, partially hydrogenated oils, TBHQ, titanium dioxide, brominated vegetable oil, potassium bromate
+- CAUTION: High fructose corn syrup, carrageenan, artificial flavors, natural flavors (unspecified), palm oil, caramel color, sodium benzoate, potassium sorbate, sulfites, polysorbate 80
 - SAFE: Water, salt, sugar, flour, whole foods, vitamins, minerals, spices, natural oils (olive, coconut, sunflower)
 
 ACCURACY REQUIREMENTS:
@@ -104,85 +108,35 @@ ACCURACY REQUIREMENTS:
 2. Copy raw ingredients text EXACTLY in "raw_ingredients_text"
 3. If image quality is poor, set "extraction_confidence": "low"
 4. List any unreadable parts in "unreadable_sections"
-5. If you're unsure about an ingredient, include it with description "Unable to fully verify - please check original label"
+5. If unsure about an ingredient, add description: "Unable to fully verify - please check original label"
 
-If image is not a food label: {"error": "NOT_A_FOOD_LABEL"}
-If image is too blurry to read: {"error": "IMAGE_TOO_BLURRY", "suggestion": "Please take a clearer photo with better lighting"}`
+SOURCE RULES:
+1. ONLY include sources with EXACT, REAL, VERIFIABLE URLs from fda.gov, who.int, nih.gov, efsa.europa.eu
+2. If you cannot provide a real working URL, set "sources": [] (empty array)
+3. NEVER guess or fabricate URLs
 
-CRITICAL SAFETY CHECK:
-- If this is NOT a food product (cleaning supplies, chemicals, medicine, poison, non-food items), set "is_edible": false
-- If this IS a food product meant for human consumption, set "is_edible": true
-
-Return ONLY valid JSON (no markdown, no explanation):
-
-{
-  "is_edible": true,
-  "product_name": "Brand and Product Name",
-  "product_type": "food|beverage|supplement|cleaning_product|chemical|prescription_drug|otc_medicine|cosmetic|unknown",
-  "warning_message": null,
-  "ingredients": [
-    {
-      "name": "Ingredient Name",
-      "category": "Preservative|Sweetener|Coloring|Flavoring|Emulsifier|Thickener|Acidulant|Vitamin/Mineral|Fat/Oil|Base|Sodium|Allergen|Ingredient|Chemical|Toxic",
-      "safety_level": "SAFE|CAUTION|DANGER|TOXIC",
-      "description": "Detailed 2-3 sentence description explaining what this ingredient is, how it's made, why it's used, and important safety information",
-      "concerns": ["specific health concern 1", "specific health concern 2"],
-      "benefits": ["specific benefit 1", "specific benefit 2"],
-      "dosage": {
-        "child_6_12": "Specific mg/kg/day or mg/day (e.g., '7.5 mg/kg/day' or '150mg daily max'). Say 'NOT FOR CHILDREN' if not safe",
-        "adult_male": "Specific mg/kg/day or mg/day for 70kg male (e.g., '500mg daily max')",
-        "adult_female": "Specific mg/kg/day or mg/day for 60kg female (e.g., '400mg daily max')",
-        "toxic_dose": "SPECIFIC toxic amount with effects (e.g., '>2000mg causes nausea, vomiting; >10,000mg causes kidney/liver damage; LD50: 5000mg/kg in rats'). NEVER be vague - always give numbers."
-      },
-      "sources": []
-    }
-  ],
-  "allergens": ["milk", "soy", "wheat"],
-  "warnings": ["Warning 1", "Warning 2"],
-  "amazon_search": "Exact product name for Amazon search",
-  "healthier_alternative": {
-    "name": "Generic or natural alternative name",
-    "type": "generic|natural|organic",
-    "description": "Why this is a healthier/cheaper option"
-  }
-}
-
-SAFETY LEVEL GUIDELINES:
-- TOXIC: Non-food items, poisons, chemicals not meant for consumption
-- DANGER: Artificial dyes (Red 40, Yellow 5, Blue 1), sodium nitrite/nitrate, BHA, BHT, aspartame, MSG, partially hydrogenated oils, brominated vegetable oil, TBHQ, titanium dioxide
-- CAUTION: High fructose corn syrup, carrageenan, artificial flavors, palm oil, excessive sodium, caramel color, potassium sorbate, sodium benzoate
-- SAFE: Natural ingredients, vitamins, minerals, water, basic whole foods
-
-CRITICAL RULES FOR SOURCES:
-1. ONLY include sources if you can provide the EXACT, REAL, WORKING URL to FDA, WHO, NIH, or .gov/.edu page
-2. If you cannot find a real URL that exists, set "sources": [] (empty array)
-3. NEVER make up or guess URLs - only use URLs you are certain exist
-4. Preferred sources: fda.gov, who.int, nih.gov, efsa.europa.eu, cdc.gov
-
-CRITICAL RULES FOR TOXIC DOSE:
+TOXIC DOSE RULES:
 1. ALWAYS provide SPECIFIC NUMBERS (mg, mg/kg, g)
-2. ALWAYS include what symptoms/effects occur at that dose
+2. ALWAYS include symptoms/effects at that dose
 3. Include LD50 data if available
 4. NEVER say vague things like "excessive amounts" or "large quantities"
-5. If truly unknown, say "No established toxic threshold - insufficient human data; LD50 in rats: [X mg/kg]"
 
 NON-FOOD ITEMS:
-If this is NOT food (cleaning products, chemicals, etc.):
+If NOT food (cleaning products, chemicals):
 - Set "is_edible": false
 - Set appropriate "warning_message"
-- Still analyze ingredients but mark as "TOXIC" safety level
-- Provide toxic dose information for accidental ingestion
-- DO NOT provide "alternatives" or recommendations
+- Mark ingredients as "TOXIC" safety level
+- Provide toxic dose for accidental ingestion
 
-MEDICATIONS (prescription_drug or otc_medicine):
+MEDICATIONS:
 If this is a MEDICATION:
-- Set "is_edible": true (medicines are meant to be consumed)
+- Set "is_edible": true
 - Set "product_type": "prescription_drug" or "otc_medicine"
-- For each active ingredient provide exact therapeutic dose, max daily dose, and overdose symptoms
-- Include generic or natural alternatives if available
+- Provide exact therapeutic dose, max daily dose, and overdose symptoms
+- Include generic alternatives if available
 
-If image is blurry or unreadable, return: {"error": "NO_INGREDIENTS_FOUND"}
-If image is not a product label at all, return: {"error": "NOT_A_PRODUCT_LABEL"}`
+If image is not a food label: {"error": "NOT_A_FOOD_LABEL"}
+If image is too blurry: {"error": "IMAGE_TOO_BLURRY", "suggestion": "Please take a clearer photo"}`
             }
           ]
         }]
