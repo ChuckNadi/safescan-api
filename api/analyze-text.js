@@ -40,28 +40,32 @@ CRITICAL RULES:
 2. NEVER add ingredients that weren't provided
 3. If an ingredient is unclear, include it with a note
 4. Analyze each ingredient for safety based on scientific data
+5. Determine if these are food ingredients or non-food/toxic substances
 
-Return ONLY valid JSON:
+Return ONLY valid JSON (no markdown):
 
 {
   "is_edible": true,
   "product_name": "Unknown Product",
-  "product_type": "food",
+  "barcode": null,
+  "product_type": "food|beverage|supplement|cleaning_product|chemical|prescription_drug|otc_medicine|cosmetic|unknown",
   "warning_message": null,
+  "extraction_confidence": "high",
+  "unreadable_sections": [],
   "raw_ingredients_text": "${ingredients}",
   "ingredients": [
     {
       "name": "EXACT ingredient name as provided",
-      "category": "Preservative|Sweetener|Coloring|Flavoring|Emulsifier|Thickener|Acidulant|Vitamin/Mineral|Fat/Oil|Base|Sodium|Allergen|Ingredient",
-      "safety_level": "SAFE|CAUTION|DANGER",
-      "description": "What this ingredient is and why it's used in food",
+      "category": "Preservative|Sweetener|Coloring|Flavoring|Emulsifier|Thickener|Acidulant|Vitamin/Mineral|Fat/Oil|Base|Sodium|Allergen|Ingredient|Chemical|Toxic",
+      "safety_level": "SAFE|CAUTION|DANGER|TOXIC",
+      "description": "What this ingredient is and why it's used in food (2-3 sentences)",
       "concerns": ["specific health concern if any"],
       "benefits": ["specific benefit if any"],
       "dosage": {
-        "child_6_12": "Specific safe amount (mg/day) or 'No established limit'",
-        "adult_male": "Specific safe amount (mg/day) or 'No established limit'",
-        "adult_female": "Specific safe amount (mg/day) or 'No established limit'",
-        "toxic_dose": "Specific amount that causes harm with symptoms, or 'No known toxicity at food consumption levels'"
+        "child_6_12": "Specific mg/kg/day or mg/day. Say 'NOT FOR CHILDREN' or 'TOXIC' if applicable",
+        "adult_male": "Specific mg/kg/day or mg/day for 70kg male",
+        "adult_female": "Specific mg/kg/day or mg/day for 60kg female",
+        "toxic_dose": "SPECIFIC amount with symptoms (e.g., '>500mg causes nausea; >2g causes organ damage; LD50: 3000mg/kg'). NEVER be vague."
       },
       "sources": []
     }
@@ -74,62 +78,17 @@ Return ONLY valid JSON:
 }
 
 SAFETY LEVELS:
-- DANGER: Red 40, Yellow 5, Yellow 6, Blue 1, sodium nitrite, BHA, BHT, aspartame, MSG, partially hydrogenated oils, TBHQ, titanium dioxide
-- CAUTION: High fructose corn syrup, carrageenan, artificial flavors, palm oil, caramel color, sodium benzoate
-- SAFE: Water, salt, sugar, flour, whole foods, vitamins, minerals, natural ingredients
-
-Count and include "total_ingredients_found" accurately.`
-
-
-
-          
-First determine if these are EDIBLE FOOD ingredients or non-food/toxic substances.
-
-Return ONLY valid JSON (no markdown, no explanation):
-
-{
-  "is_edible": true or false,
-  "product_name": "Unknown Product",
-  "product_type": "food|beverage|supplement|cleaning_product|chemical|medicine|cosmetic|unknown",
-  "warning_message": "Only if NOT edible: Clear warning like 'THESE ARE NOT FOOD INGREDIENTS - These chemicals are TOXIC if consumed'",
-  "ingredients": [
-    {
-      "name": "Ingredient Name",
-      "category": "Preservative|Sweetener|Coloring|Flavoring|Emulsifier|Thickener|Acidulant|Vitamin/Mineral|Fat/Oil|Base|Sodium|Allergen|Ingredient|Chemical|Toxic",
-      "safety_level": "SAFE|CAUTION|DANGER|TOXIC",
-      "description": "Detailed 2-3 sentence description explaining what this ingredient is, its purpose, and safety information",
-      "concerns": ["specific concern 1", "specific concern 2"],
-      "benefits": ["specific benefit 1", "specific benefit 2"],
-      "dosage": {
-        "child_6_12": "Specific mg/kg/day or mg/day. Say 'NOT FOR CHILDREN' or 'TOXIC - NOT FOR CONSUMPTION' if applicable",
-        "adult_male": "Specific mg/kg/day or mg/day for 70kg male",
-        "adult_female": "Specific mg/kg/day or mg/day for 60kg female",
-        "toxic_dose": "SPECIFIC amount with effects (e.g., '>500mg causes vomiting; >2g causes organ damage; LD50: 3000mg/kg'). NEVER be vague."
-      },
-      "sources": [
-        {"title": "Source name", "url": "https://exact-real-url.gov/specific-page"}
-      ]
-    }
-  ],
-  "allergens": ["milk", "soy", "wheat"],
-  "warnings": ["Warning 1"]
-}
-
-
-
-SAFETY LEVELS:
 - TOXIC: Non-food chemicals, poisons, substances not for human consumption
-- DANGER: Artificial dyes, sodium nitrite, BHA, BHT, aspartame, MSG, hydrogenated oils, TBHQ, titanium dioxide
-- CAUTION: HFCS, carrageenan, artificial flavors, palm oil, caramel color, sodium benzoate
-- SAFE: Natural ingredients, vitamins, minerals, whole foods
+- DANGER: Red 40, Yellow 5, Yellow 6, Blue 1, Blue 2, sodium nitrite, sodium nitrate, BHA, BHT, aspartame, acesulfame potassium, MSG, partially hydrogenated oils, TBHQ, titanium dioxide
+- CAUTION: High fructose corn syrup, carrageenan, artificial flavors, natural flavors (unspecified), palm oil, caramel color, sodium benzoate, potassium sorbate
+- SAFE: Water, salt, sugar, flour, whole foods, vitamins, minerals, spices, natural oils
 
-CRITICAL SOURCE RULES:
-1. ONLY include sources with EXACT, REAL, VERIFIABLE URLs
+SOURCE RULES:
+1. ONLY include sources with EXACT, REAL, VERIFIABLE URLs from fda.gov, who.int, nih.gov, efsa.europa.eu
 2. If you cannot provide a real working URL, set "sources": [] (empty array)
 3. NEVER guess or fabricate URLs
-4. Only use: fda.gov, who.int, nih.gov, efsa.europa.eu, cdc.gov, pubmed.ncbi.nlm.nih.gov
 
-CRITICAL TOXIC DOSE RULES:
+TOXIC DOSE RULES:
 1. ALWAYS give SPECIFIC NUMBERS (mg, g, mg/kg)
 2. ALWAYS describe symptoms at that dose
 3. Include LD50 if known
@@ -138,8 +97,11 @@ CRITICAL TOXIC DOSE RULES:
 NON-FOOD SUBSTANCES:
 If these are NOT food ingredients:
 - Set "is_edible": false
+- Set "warning_message": "THESE ARE NOT FOOD INGREDIENTS - These chemicals are TOXIC if consumed"
 - Provide toxic dose for accidental ingestion awareness
-- Mark all as "TOXIC" safety level`
+- Mark all as "TOXIC" safety level
+
+Count and include "total_ingredients_found" accurately.`
         }]
       })
     });
@@ -150,9 +112,11 @@ If these are NOT food ingredients:
       return res.status(200).json({ success: true, content: data.choices[0].message.content });
     }
     
-    return res.status(500).json({ error: 'No response from AI' });
+    console.log('OpenRouter response:', JSON.stringify(data).substring(0, 500));
+    return res.status(500).json({ error: 'No response from AI', debug: data });
     
   } catch (error) {
+    console.error('Catch error:', error.message);
     return res.status(500).json({ error: 'Analysis failed', details: error.message });
   }
 }
