@@ -39,6 +39,76 @@ export default async function handler(req, res) {
               type: "text",
               text: `Analyze this image. First determine if this is an EDIBLE FOOD PRODUCT.
 
+
+CRITICAL RULES:
+1. ONLY list ingredients you can CLEARLY READ in the image
+2. NEVER guess or make up ingredients
+3. NEVER add ingredients that aren't visible
+4. If you cannot read an ingredient clearly, mark it as "unreadable_[position]"
+5. If the image is blurry or cut off, say which parts are unreadable
+6. Extract ingredients in the EXACT ORDER they appear on the label
+7. Include ALL ingredients - do not skip any
+8. Include sub-ingredients in parentheses (e.g., "Contains 2% or less of: salt, sugar")
+
+BARCODE EXTRACTION:
+- If you see a barcode number, include it in "barcode" field
+- UPC codes are 12 digits, EAN codes are 13 digits
+- If no barcode visible, set "barcode": null
+
+Return ONLY valid JSON (no markdown):
+
+{
+  "is_edible": true,
+  "product_name": "EXACT brand and product name as shown on package",
+  "barcode": "barcode number if visible, or null",
+  "product_type": "food|beverage|supplement|cleaning_product|chemical|prescription_drug|otc_medicine|cosmetic|unknown",
+  "warning_message": null,
+  "extraction_confidence": "high|medium|low",
+  "unreadable_sections": ["list any parts of label that were cut off or blurry"],
+  "raw_ingredients_text": "Copy the EXACT ingredients text as written on the label, word for word",
+  "ingredients": [
+    {
+      "name": "EXACT ingredient name as written on label",
+      "category": "Preservative|Sweetener|Coloring|Flavoring|Emulsifier|Thickener|Acidulant|Vitamin/Mineral|Fat/Oil|Base|Sodium|Allergen|Ingredient",
+      "safety_level": "SAFE|CAUTION|DANGER",
+      "description": "What this ingredient is and why it's used",
+      "concerns": ["specific concern if any"],
+      "benefits": ["specific benefit if any"],
+      "dosage": {
+        "child_6_12": "Specific safe amount or 'No established limit'",
+        "adult_male": "Specific safe amount or 'No established limit'",
+        "adult_female": "Specific safe amount or 'No established limit'",
+        "toxic_dose": "Specific toxic amount with symptoms (e.g., '>5g causes nausea') or 'No known toxicity at normal consumption levels'"
+      },
+      "sources": []
+    }
+  ],
+  "total_ingredients_found": 0,
+  "allergens": ["ONLY allergens explicitly stated on label"],
+  "warnings": ["ONLY warnings explicitly stated on label"],
+  "amazon_search": "exact product name for accurate Amazon search",
+  "healthier_alternative": {
+    "name": "specific healthier product name",
+    "type": "organic|natural|generic",
+    "description": "why this is healthier"
+  }
+}
+
+SAFETY LEVELS (apply accurately):
+- DANGER: Artificial dyes (Red 40, Yellow 5, Yellow 6, Blue 1, Blue 2), sodium nitrite, sodium nitrate, BHA, BHT, aspartame, acesulfame potassium, MSG (monosodium glutamate), partially hydrogenated oils, TBHQ, titanium dioxide, brominated vegetable oil, potassium bromate
+- CAUTION: High fructose corn syrup, carrageenan, artificial flavors, natural flavors (when unspecified), palm oil, caramel color, sodium benzoate, potassium sorbate, sulfites, polysorbate 80
+- SAFE: Water, salt, sugar, flour, whole foods, vitamins, minerals, spices, natural oils (olive, coconut, sunflower)
+
+ACCURACY REQUIREMENTS:
+1. Count total ingredients and put in "total_ingredients_found"
+2. Copy raw ingredients text EXACTLY in "raw_ingredients_text"
+3. If image quality is poor, set "extraction_confidence": "low"
+4. List any unreadable parts in "unreadable_sections"
+5. If you're unsure about an ingredient, include it with description "Unable to fully verify - please check original label"
+
+If image is not a food label: {"error": "NOT_A_FOOD_LABEL"}
+If image is too blurry to read: {"error": "IMAGE_TOO_BLURRY", "suggestion": "Please take a clearer photo with better lighting"}`
+
 CRITICAL SAFETY CHECK:
 - If this is NOT a food product (cleaning supplies, chemicals, medicine, poison, non-food items), set "is_edible": false
 - If this IS a food product meant for human consumption, set "is_edible": true
