@@ -114,6 +114,7 @@ SOURCE RULES:
 1. ONLY include sources with EXACT, REAL, VERIFIABLE URLs from fda.gov, who.int, nih.gov, efsa.europa.eu
 2. If you cannot provide a real working URL, set "sources": [] (empty array)
 3. NEVER guess or fabricate URLs
+4. This prevents fake or broken links from being shown to users
 
 TOXIC DOSE RULES:
 1. ALWAYS provide SPECIFIC NUMBERS (mg, mg/kg, g)
