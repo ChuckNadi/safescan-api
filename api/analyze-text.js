@@ -64,6 +64,9 @@ Return ONLY valid JSON (no markdown, no explanation):
   "warnings": ["Warning 1"]
 }
 
+DURING ANALYSIS: 
+- READ BARCODE IF AVALABLE AND CROSS REFRENCE UPC TO BE MORE ACCURATE.
+
 SAFETY LEVELS:
 - TOXIC: Non-food chemicals, poisons, substances not for human consumption
 - DANGER: Artificial dyes, sodium nitrite, BHA, BHT, aspartame, MSG, hydrogenated oils, TBHQ, titanium dioxide
