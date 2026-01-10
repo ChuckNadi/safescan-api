@@ -30,8 +30,59 @@ export default async function handler(req, res) {
         max_tokens: 3500,
         messages: [{
           role: "user",
-          content: `Analyze these ingredients: ${ingredients}
+          content: `You are a precise ingredient analyzer. Analyze ONLY the ingredients provided - do not add or guess any ingredients.
 
+INGREDIENTS TO ANALYZE:
+${ingredients}
+
+CRITICAL RULES:
+1. ONLY analyze ingredients that are in the provided list
+2. NEVER add ingredients that weren't provided
+3. If an ingredient is unclear, include it with a note
+4. Analyze each ingredient for safety based on scientific data
+
+Return ONLY valid JSON:
+
+{
+  "is_edible": true,
+  "product_name": "Unknown Product",
+  "product_type": "food",
+  "warning_message": null,
+  "raw_ingredients_text": "${ingredients}",
+  "ingredients": [
+    {
+      "name": "EXACT ingredient name as provided",
+      "category": "Preservative|Sweetener|Coloring|Flavoring|Emulsifier|Thickener|Acidulant|Vitamin/Mineral|Fat/Oil|Base|Sodium|Allergen|Ingredient",
+      "safety_level": "SAFE|CAUTION|DANGER",
+      "description": "What this ingredient is and why it's used in food",
+      "concerns": ["specific health concern if any"],
+      "benefits": ["specific benefit if any"],
+      "dosage": {
+        "child_6_12": "Specific safe amount (mg/day) or 'No established limit'",
+        "adult_male": "Specific safe amount (mg/day) or 'No established limit'",
+        "adult_female": "Specific safe amount (mg/day) or 'No established limit'",
+        "toxic_dose": "Specific amount that causes harm with symptoms, or 'No known toxicity at food consumption levels'"
+      },
+      "sources": []
+    }
+  ],
+  "total_ingredients_found": 0,
+  "allergens": [],
+  "warnings": [],
+  "amazon_search": "search term based on ingredients",
+  "healthier_alternative": null
+}
+
+SAFETY LEVELS:
+- DANGER: Red 40, Yellow 5, Yellow 6, Blue 1, sodium nitrite, BHA, BHT, aspartame, MSG, partially hydrogenated oils, TBHQ, titanium dioxide
+- CAUTION: High fructose corn syrup, carrageenan, artificial flavors, palm oil, caramel color, sodium benzoate
+- SAFE: Water, salt, sugar, flour, whole foods, vitamins, minerals, natural ingredients
+
+Count and include "total_ingredients_found" accurately.`
+
+
+
+          
 First determine if these are EDIBLE FOOD ingredients or non-food/toxic substances.
 
 Return ONLY valid JSON (no markdown, no explanation):
