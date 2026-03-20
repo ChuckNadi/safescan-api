@@ -112,15 +112,17 @@ Return ONLY valid JSON (no markdown):
   }
 }
 
-HEALTHIER ALTERNATIVE - Search these retailers:
-- iHerb.com, ThriveMarket.com, Vitacost.com, Whole Foods, Target Good & Gather, Walmart Organic
-- Prioritize: organic, non-GMO, no artificial colors/flavors/preservatives
-- Provide direct product URL, retailer name, and price
+HEALTHIER ALTERNATIVE:
+- Suggest a specific organic/natural/healthier version of this product
+- Use iHerb search URL format: https://www.iherb.com/search?kw=PRODUCT+NAME
+- retailer should be "iHerb" 
+- price should be "Check Price"
 
-CHEAPEST OPTION - Search these retailers:
-- Walmart, Target, Costco, Amazon, Kroger, Aldi
-- Find exact same product at lowest price OR store brand equivalent
-- Provide direct product URL, retailer name, and price
+CHEAPEST OPTION:
+- Suggest a store brand or budget version
+- Use Walmart search URL format: https://www.walmart.com/search?q=PRODUCT+NAME
+- retailer should be "Walmart"
+- price should be "Check Price"
 
 URL FORMAT (if exact URL unknown):
 - Walmart: https://www.walmart.com/search?q=PRODUCT+NAME
