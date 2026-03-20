@@ -98,4 +98,4 @@ If this is NOT a food ingredient (chemical, poison, cleaning agent, etc.):
   } catch (error) {
     return res.status(500).json({ error: 'Analysis failed', details: error.message });
   }
-}
+};
