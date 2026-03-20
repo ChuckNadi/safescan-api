@@ -39,6 +39,16 @@ export default async function handler(req, res) {
               type: "text",
               text: `You are a precise ingredient extraction tool. Your job is to read food labels EXACTLY as written.
 
+BARCODE EXTRACTION - CRITICAL:
+1. ACTIVELY LOOK for barcodes/UPC codes in the image
+2. Look in corners, edges, bottom, back of package
+3. UPC-A: 12 digits (most common in US)
+4. EAN-13: 13 digits (international)
+5. UPC-E: 8 digits (compact)
+6. The number is usually PRINTED BELOW the barcode lines
+7. If you see ANY numbers near black/white lines, extract them
+8. Set "barcode_confidence": "high" if clearly visible, "medium" if partial, "low" if guessing, "none" if not found
+
 CRITICAL EXTRACTION RULES:
 1. ONLY list ingredients you can CLEARLY READ in the image
 2. NEVER guess or make up ingredients
@@ -52,18 +62,14 @@ CRITICAL EXTRACTION RULES:
 SAFETY CHECK:
 - If this is NOT a food product (cleaning supplies, chemicals, medicine, poison), set "is_edible": false
 - If this IS a food product meant for human consumption, set "is_edible": true
-
-BARCODE EXTRACTION:
-- If you see a barcode number, include it in "barcode" field
-- UPC codes are 12 digits, EAN codes are 13 digits
-- If no barcode visible, set "barcode": null
-
 Return ONLY valid JSON (no markdown):
 
 {
   "is_edible": true,
   "product_name": "EXACT brand and product name as shown on package",
+  "product_name_source": "label_text|packaging|inferred|unknown",
   "barcode": "barcode number if visible, or null",
+  "barcode_confidence": "high|medium|low|none",
   "product_type": "food|beverage|supplement|cleaning_product|chemical|prescription_drug|otc_medicine|cosmetic|unknown",
   "warning_message": null,
   "extraction_confidence": "high|medium|low",
