@@ -57,11 +57,12 @@ CRITICAL EXTRACTION RULES:
 5. If the image is blurry or cut off, say which parts are unreadable
 6. Extract ingredients in the EXACT ORDER they appear on the label
 7. Include ALL ingredients - do not skip any
-8. Include sub-ingredients in parentheses (e.g., "Contains 2% or less of: salt, sugar")
+8. Include sub-ingredients in parentheses
 
 SAFETY CHECK:
 - If this is NOT a food product (cleaning supplies, chemicals, medicine, poison), set "is_edible": false
 - If this IS a food product meant for human consumption, set "is_edible": true
+
 Return ONLY valid JSON (no markdown):
 
 {
@@ -74,22 +75,15 @@ Return ONLY valid JSON (no markdown):
   "warning_message": null,
   "extraction_confidence": "high|medium|low",
   "unreadable_sections": ["list any parts of label that were cut off or blurry"],
-  "raw_ingredients_text": "Copy the EXACT ingredients text as written on the label, word for word",
+  "raw_ingredients_text": "Copy the EXACT ingredients text as written on the label",
   "ingredients": [
     {
       "name": "EXACT ingredient name as written on label",
       "category": "Preservative|Sweetener|Coloring|Flavoring|Emulsifier|Thickener|Acidulant|Vitamin/Mineral|Fat/Oil|Base|Sodium|Allergen|Ingredient|Chemical|Toxic",
       "safety_level": "SAFE|CAUTION|DANGER|TOXIC",
-      "description": "What this ingredient is and why it's used (2-3 sentences)",
+      "description": "What this ingredient is and why it's used",
       "concerns": ["specific health concern if any"],
-      "benefits": ["specific benefit if any"],
-      "dosage": {
-        "child_6_12": "Specific mg/kg/day or mg/day (e.g., '7.5 mg/kg/day'). Say 'NOT FOR CHILDREN' if unsafe",
-        "adult_male": "Specific mg/kg/day or mg/day for 70kg male (e.g., '500mg daily max')",
-        "adult_female": "Specific mg/kg/day or mg/day for 60kg female (e.g., '400mg daily max')",
-        "toxic_dose": "SPECIFIC amount with symptoms (e.g., '>2000mg causes nausea; >10g causes liver damage; LD50: 5000mg/kg in rats'). NEVER be vague."
-      },
-      "sources": []
+      "benefits": ["specific benefit if any"]
     }
   ],
   "total_ingredients_found": 0,
@@ -99,75 +93,34 @@ Return ONLY valid JSON (no markdown):
   "healthier_alternative": {
     "name": "Specific healthier product name (organic/natural version)",
     "description": "Why this is healthier - no artificial ingredients, organic, etc",
-    "url": "https://www.retailer.com/product-page-url",
-    "retailer": "Walmart|Target|iHerb|Whole Foods|Thrive Market|Amazon",
-    "price": "$X.XX"
+    "url": "https://www.iherb.com/search?kw=PRODUCT+NAME",
+    "retailer": "iHerb",
+    "price": "Check Price"
   },
   "cheapest_option": {
     "name": "Specific product name - store brand or best deal",
     "description": "Best value - same quality for less",
-    "url": "https://www.retailer.com/product-page-url",
-    "retailer": "Walmart|Target|Costco|Amazon|Kroger|Aldi",
-    "price": "$X.XX"
+    "url": "https://www.walmart.com/search?q=PRODUCT+NAME",
+    "retailer": "Walmart",
+    "price": "Check Price"
   }
 }
 
+SAFETY LEVELS:
+- TOXIC: Non-food items, poisons, chemicals not meant for consumption
+- DANGER: Artificial dyes (Red 40, Yellow 5, Yellow 6, Blue 1), sodium nitrite, BHA, BHT, aspartame, MSG, partially hydrogenated oils, TBHQ, titanium dioxide
+- CAUTION: High fructose corn syrup, carrageenan, artificial flavors, natural flavors, palm oil, caramel color, sodium benzoate
+- SAFE: Water, salt, sugar, flour, whole foods, vitamins, minerals, spices, natural oils
+
 HEALTHIER ALTERNATIVE:
-- Suggest a specific organic/natural/healthier version of this product
-- Use iHerb search URL format: https://www.iherb.com/search?kw=PRODUCT+NAME
-- retailer should be "iHerb" 
-- price should be "Check Price"
+- Suggest an organic/natural version of this product
+- Use search URL: https://www.iherb.com/search?kw=PRODUCT+NAME (replace PRODUCT+NAME with actual product)
+- Set retailer to "iHerb" and price to "Check Price"
 
 CHEAPEST OPTION:
 - Suggest a store brand or budget version
-- Use Walmart search URL format: https://www.walmart.com/search?q=PRODUCT+NAME
-- retailer should be "Walmart"
-- price should be "Check Price"
-
-URL FORMAT (if exact URL unknown):
-- Walmart: https://www.walmart.com/search?q=PRODUCT+NAME
-- Target: https://www.target.com/s?searchTerm=PRODUCT+NAME
-- Amazon: https://www.amazon.com/s?k=PRODUCT+NAME
-- iHerb: https://www.iherb.com/search?kw=PRODUCT+NAME`
-
-SAFETY LEVELS:
-- TOXIC: Non-food items, poisons, chemicals not meant for consumption
-- DANGER: Artificial dyes (Red 40, Yellow 5, Yellow 6, Blue 1, Blue 2), sodium nitrite, sodium nitrate, BHA, BHT, aspartame, acesulfame potassium, MSG, partially hydrogenated oils, TBHQ, titanium dioxide, brominated vegetable oil, potassium bromate
-- CAUTION: High fructose corn syrup, carrageenan, artificial flavors, natural flavors (unspecified), palm oil, caramel color, sodium benzoate, potassium sorbate, sulfites, polysorbate 80
-- SAFE: Water, salt, sugar, flour, whole foods, vitamins, minerals, spices, natural oils (olive, coconut, sunflower)
-
-ACCURACY REQUIREMENTS:
-1. Count total ingredients and put in "total_ingredients_found"
-2. Copy raw ingredients text EXACTLY in "raw_ingredients_text"
-3. If image quality is poor, set "extraction_confidence": "low"
-4. List any unreadable parts in "unreadable_sections"
-5. If unsure about an ingredient, add description: "Unable to fully verify - please check original label"
-
-SOURCE RULES:
-1. ONLY include sources with EXACT, REAL, VERIFIABLE URLs from fda.gov, who.int, nih.gov, efsa.europa.eu
-2. If you cannot provide a real working URL, set "sources": [] (empty array)
-3. NEVER guess or fabricate URLs
-4. This prevents fake or broken links from being shown to users
-
-TOXIC DOSE RULES:
-1. ALWAYS provide SPECIFIC NUMBERS (mg, mg/kg, g)
-2. ALWAYS include symptoms/effects at that dose
-3. Include LD50 data if available
-4. NEVER say vague things like "excessive amounts" or "large quantities"
-
-NON-FOOD ITEMS:
-If NOT food (cleaning products, chemicals):
-- Set "is_edible": false
-- Set appropriate "warning_message"
-- Mark ingredients as "TOXIC" safety level
-- Provide toxic dose for accidental ingestion
-
-MEDICATIONS:
-If this is a MEDICATION:
-- Set "is_edible": true
-- Set "product_type": "prescription_drug" or "otc_medicine"
-- Provide exact therapeutic dose, max daily dose, and overdose symptoms
-- Include generic alternatives if available
+- Use search URL: https://www.walmart.com/search?q=PRODUCT+NAME (replace PRODUCT+NAME with actual product)
+- Set retailer to "Walmart" and price to "Check Price"
 
 If image is not a food label: {"error": "NOT_A_FOOD_LABEL"}
 If image is too blurry: {"error": "IMAGE_TOO_BLURRY", "suggestion": "Please take a clearer photo"}`
@@ -190,4 +143,4 @@ If image is too blurry: {"error": "IMAGE_TOO_BLURRY", "suggestion": "Please take
     console.error('Catch error:', error.message);
     return res.status(500).json({ error: 'Analysis failed', details: error.message });
   }
-}
+};
