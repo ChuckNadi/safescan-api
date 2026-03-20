@@ -97,11 +97,36 @@ Return ONLY valid JSON (no markdown):
   "warnings": ["ONLY warnings explicitly stated on label"],
   "amazon_search": "exact product name for accurate Amazon search",
   "healthier_alternative": {
-    "name": "specific healthier product name",
-    "type": "organic|natural|generic",
-    "description": "why this is healthier"
+    "name": "Specific healthier product name (organic/natural version)",
+    "description": "Why this is healthier - no artificial ingredients, organic, etc",
+    "url": "https://www.retailer.com/product-page-url",
+    "retailer": "Walmart|Target|iHerb|Whole Foods|Thrive Market|Amazon",
+    "price": "$X.XX"
+  },
+  "cheapest_option": {
+    "name": "Specific product name - store brand or best deal",
+    "description": "Best value - same quality for less",
+    "url": "https://www.retailer.com/product-page-url",
+    "retailer": "Walmart|Target|Costco|Amazon|Kroger|Aldi",
+    "price": "$X.XX"
   }
 }
+
+HEALTHIER ALTERNATIVE - Search these retailers:
+- iHerb.com, ThriveMarket.com, Vitacost.com, Whole Foods, Target Good & Gather, Walmart Organic
+- Prioritize: organic, non-GMO, no artificial colors/flavors/preservatives
+- Provide direct product URL, retailer name, and price
+
+CHEAPEST OPTION - Search these retailers:
+- Walmart, Target, Costco, Amazon, Kroger, Aldi
+- Find exact same product at lowest price OR store brand equivalent
+- Provide direct product URL, retailer name, and price
+
+URL FORMAT (if exact URL unknown):
+- Walmart: https://www.walmart.com/search?q=PRODUCT+NAME
+- Target: https://www.target.com/s?searchTerm=PRODUCT+NAME
+- Amazon: https://www.amazon.com/s?k=PRODUCT+NAME
+- iHerb: https://www.iherb.com/search?kw=PRODUCT+NAME`
 
 SAFETY LEVELS:
 - TOXIC: Non-food items, poisons, chemicals not meant for consumption
