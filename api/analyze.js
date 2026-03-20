@@ -97,13 +97,6 @@ Return ONLY valid JSON (no markdown):
     "retailer": "iHerb",
     "price": "Check Price"
   },
-  "cheapest_option": {
-    "name": "Specific product name - store brand or best deal",
-    "description": "Best value - same quality for less",
-    "url": "https://www.walmart.com/search?q=PRODUCT+NAME",
-    "retailer": "Walmart",
-    "price": "Check Price"
-  }
 }
 
 SAFETY LEVELS:
@@ -117,10 +110,6 @@ HEALTHIER ALTERNATIVE:
 - Use search URL: https://www.iherb.com/search?kw=PRODUCT+NAME (replace PRODUCT+NAME with actual product)
 - Set retailer to "iHerb" and price to "Check Price"
 
-CHEAPEST OPTION:
-- Suggest a store brand or budget version
-- Use search URL: https://www.walmart.com/search?q=PRODUCT+NAME (replace PRODUCT+NAME with actual product)
-- Set retailer to "Walmart" and price to "Check Price"
 
 If image is not a food label: {"error": "NOT_A_FOOD_LABEL"}
 If image is too blurry: {"error": "IMAGE_TOO_BLURRY", "suggestion": "Please take a clearer photo"}`
